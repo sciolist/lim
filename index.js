@@ -1,1 +1,1 @@
-var _ = require('traceur').require('./lib/index.js');
+module.exports = require('traceur').require('./lib/index.js');
