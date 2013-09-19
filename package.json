@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/sciolist/lim/issues"
   },
-  "devDependencies": {
+  "dependencies": {
     "traceur": "0.0.4"
   }
 }
