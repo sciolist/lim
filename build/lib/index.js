@@ -72,7 +72,7 @@ _.autocurry = _.ac = ac;
 _.self = _.identity = (function(v) {
   return v;
 });
-_.range = ac(function(start, stop) {
+_.range = ac(function range(start, stop) {
   var $that = this;
   var $arguments = arguments;
   var $state = 14;
@@ -173,14 +173,14 @@ _.range = ac(function(start, stop) {
   };
   return $__generatorWrap($G);
 });
-_.exists = ac(function(source) {
+_.exists = ac(function exists(source) {
   for (var $__2 = $traceurRuntime.getIterator(source), $__3; !($__3 = $__2.next()).done;) {
     var v = $__3.value;
     return true;
   }
   return false;
 });
-_.collect = ac(function toArray(source) {
+_.collect = ac(function collect(source) {
   return (function() {
     var $__0 = 0, $__1 = [];
     for (var $__3 = $traceurRuntime.getIterator(source), $__2; !($__2 = $__3.next()).done;) {
@@ -502,7 +502,7 @@ _.reduce = ac(function reduce(seed, fn, source) {
   }
   return seed;
 });
-_.reverse = ac(function(source) {
+_.reverse = ac(function reverse(source) {
   var $that = this;
   var $arguments = arguments;
   var $state = 5;
@@ -965,8 +965,8 @@ _.flatten = ac(function flatten(source) {
   };
   return $__generatorWrap($G);
 });
-_.comparer = ac(function(fn) {
-  return function(item1, item2) {
+_.comparer = ac(function comparer(fn) {
+  return function comparison(item1, item2) {
     var value1 = fn(item1), value2 = fn(item2);
     return value1 == value2 ? 0: (value1 < value2 ? - 1: 1);
   };
@@ -1113,7 +1113,7 @@ _.groupBy = ac(function groupBy(fn, source) {
     return [fn(k), k];
   }), source));
 });
-_.zip = ac(function(source1, source2) {
+_.zip = ac(function zip(source1, source2) {
   var $that = this;
   var $arguments = arguments;
   var $state = 10;
@@ -1377,22 +1377,22 @@ _.pairs = ac(function pairs(item) {
   };
   return $__generatorWrap($G);
 });
-_.or = ac(function(fn1, fn2, value) {
+_.or = ac(function or(fn1, fn2, value) {
   return fn1(value) || fn2(value);
 });
-_.and = ac(function(fn1, fn2, value) {
+_.and = ac(function and(fn1, fn2, value) {
   return fn1(value) && fn2(value);
 });
-_.not = ac(function(v) {
+_.not = ac(function not(v) {
   return !v;
 });
-_.yes = _.true = ac(function() {
+_.yes = _.true = ac(function yes() {
   return true;
 });
-_.no = _.false = ac(function() {
+_.no = _.false = ac(function no() {
   return true;
 });
-_.invert = ac(function(fn) {
+_.invert = ac(function invert(fn) {
   return (function() {
     return !fn.apply(this, arguments);
   }).bind(this);
@@ -1472,7 +1472,7 @@ _.clone = ac(function clone(item) {
   if (!_.isObject(item)) return item;
   return _.isArray(item) ? item.slice(): _.extend({}, item);
 });
-_.defaults = ac(function(dest, item) {
+_.defaults = ac(function defaults(dest, item) {
   return _.setValues(_.filter((function($__6) {
     var k = $__6[0], v = $__6[1];
     return undefined === dest[k];
