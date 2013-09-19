@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "lazy iterator manipulation",
   "main": "index.js",
-  "scripts": { },
+  "scripts": {
+    "prepublish": "sh build.sh"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/sciolist/lim.git"
@@ -13,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/sciolist/lim/issues"
   },
-  "dependencies": {
+  "devDependencies": {
     "traceur": "0.0.4"
   }
 }

@@ -1,1 +1,1 @@
-module.exports = require('traceur').require('./lib/index.js');
+module.exports = exports = require('./build/lib/index.js');
