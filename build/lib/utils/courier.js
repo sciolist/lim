@@ -1,64 +1,115 @@
 var placeholder = {};
+var toString = Object.prototype.toString;
 var slice = Array.prototype.slice;
 module.exports = function createCourier(pending) {
   if (arguments.length === 0) pending = {};
-  return function Courier(fn, opts) {
-    if (!opts) {
-      opts = {};
-      opts.prefix = Array(fn.length);
-      for (var i = 0; i < fn.length; ++i) opts.prefix[i] = placeholder;
-      opts.remain = opts.prefix.length;
-      opts.nestedRemain = 0;
-      opts.surplus = [];
-    }
-    function isCourier(v) {
-      return v && v.placeholder === placeholder;
-    }
-    function courier() {
-      return courier.complete(slice.call(arguments));
-    }
-    courier.complete = function complete(input) {
-      var rest = courier.fill(input);
-      if (rest.remain || rest.nestedRemain) return rest;
-      var result = rest.invoke();
-      if (isCourier(result)) {
-        console.log("::");
-        return result.complete(opts.bonus);
+  function hasCourier(value) {
+    return value && (value.courier instanceof Courier);
+  }
+  function Courier(fn, opts) {
+    if (!opts) opts = {};
+    this.wrapped = fn;
+    this.name = opts.name || fn.name;
+    this.surplus = opts.surplus || [];
+    this.nestedRemain = opts.nestedRemain || 0;
+    this.remain = opts.remain || 0;
+    if (!opts.prefix) {
+      this.prefix = Array(fn.length);
+      for (var i = 0; i < fn.length; ++i) {
+        this.prefix[i] = placeholder;
       }
-      return result;
-    };
-    courier.remain = opts.remain;
-    courier.nestedRemain = opts.nestedRemain;
-    courier.invoke = function invoke() {
-      return fn.apply(this, opts.prefix);
-    };
-    courier.fill = function fill(input) {
-      var prefix = opts.prefix.slice(), remain = 0, nestedRemain = 0;
-      function getPending(i) {
-        var value = prefix[i];
-        if (value === placeholder || value === pending) return true;
-        if (!value || value.name !== 'courier') return false;
-        var rest = value.complete(input.splice(0, value.nestedRemain));
-        if (rest && rest.name === 'courier') nestedRemain += rest.nestedRemain;
-        prefix[i] = rest;
-        return false;
+      this.remain = this.prefix.length;
+    } else {
+      this.prefix = slice.call(opts.prefix);
+    }
+  }
+  Courier.prototype.accept = function accept(input) {
+    var rest = this.fill(input);
+    if (rest.remain || rest.nestedRemain) {
+      return rest;
+    }
+    var result = rest.invoke();
+    if (result instanceof Courier) {
+      return result.courier.accept(this.surplus);
+    }
+    return result;
+  };
+  Courier.prototype.invoke = function invoke() {
+    return this.wrapped.apply(null, this.prefix);
+  };
+  Courier.prototype.fill = function fill(input) {
+    var prefix = this.prefix.slice(), remain = 0, nestedRemain = 0;
+    for (var i = 0; i < prefix.length; ++i) {
+      if (!input.length) break;
+      if (prefix[i] === placeholder) prefix[i] = input.shift(); else if (prefix[i] === pending) prefix[i] = input.shift(); else if (hasCourier(prefix[i])) {
+        var inner = prefix[i].courier;
+        prefix[i] = wrap(inner.accept(input.splice(0, inner.nestedRemain)));
       }
-      for (var i = 0; i < prefix.length; ++i) {
+    }
+    for (var i = 0; i < prefix.length; ++i) {
+      if (prefix[i] === placeholder) {
         remain += 1;
-        var isPending = getPending(i);
-        if (isPending) {
-          if (input.length) prefix[i] = input.shift();
-        }
-        if (prefix[i] === pending) nestedRemain += 1; else if (!getPending(i)) remain -= 1;
+      } else if (prefix[i] === pending) {
+        remain += 1;
+        nestedRemain += 1;
+      } else if (hasCourier(prefix[i])) {
+        nestedRemain += prefix[i].courier.nestedRemain;
       }
-      return Courier(fn, {
-        prefix: prefix,
-        remain: remain,
-        nestedRemain: nestedRemain,
-        surplus: input
-      });
-    };
-    return courier;
+    }
+    return new Courier(this.wrapped, {
+      name: this.name,
+      prefix: prefix,
+      remain: remain,
+      nestedRemain: nestedRemain,
+      surplus: input
+    });
+    throw new Error("...");
+    for (var i = 0; i < prefix.length; ++i) {
+      remain += 1;
+      var isPending = getPending(i);
+      if (isPending && input.length) prefix[i] = input.shift();
+      if (prefix[i] === pending) nestedRemain += 1; else if (!getPending(i)) remain -= 1;
+    }
+    return new Courier(this.wrapped, {
+      name: this.name,
+      prefix: prefix,
+      remain: remain,
+      nestedRemain: nestedRemain,
+      surplus: input
+    });
+    function getPending(i) {
+      var value = prefix[i];
+      if (value === placeholder || value === pending) return true;
+      if (!hasCourier(value)) return false;
+      var rest = wrap(value.courier.accept(input.splice(0, value.nestedRemain)));
+      if (hasCourier(rest)) nestedRemain += rest.courier.nestedRemain;
+      prefix[i] = rest;
+      return false;
+    }
+  };
+  function debug(nowrap) {
+    var out = [];
+    var courier = this.courier;
+    for (var i = 0; i < courier.prefix.length; ++i) {
+      var value = courier.prefix[i];
+      if (value === pending) out.push('$');
+      if (value === placeholder) out.push('$'); else if (hasCourier(value)) out.push(debug.call(value, true)); else if (value instanceof Function) out.push('fn'); else out.push(JSON.stringify(value));
+    }
+    var params = '(' + out.join(',') + ')';
+    if (nowrap === true) return params;
+    return '[Courier ' + params + ']';
+  }
+  function wrap(courier) {
+    if (!(courier instanceof Courier)) return courier;
+    function result() {
+      return wrap(courier.accept(slice.call(arguments)));
+    }
+    result.inspect = debug;
+    result.courier = courier;
+    return result;
+  }
+  return function courier(fn) {
+    return wrap(new Courier(fn, {}));
   };
 };
 
