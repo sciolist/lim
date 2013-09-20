@@ -63,29 +63,6 @@ module.exports = function createCourier(pending) {
       nestedRemain: nestedRemain,
       surplus: input
     });
-    throw new Error("...");
-    for (var i = 0; i < prefix.length; ++i) {
-      remain += 1;
-      var isPending = getPending(i);
-      if (isPending && input.length) prefix[i] = input.shift();
-      if (prefix[i] === pending) nestedRemain += 1; else if (!getPending(i)) remain -= 1;
-    }
-    return new Courier(this.wrapped, {
-      name: this.name,
-      prefix: prefix,
-      remain: remain,
-      nestedRemain: nestedRemain,
-      surplus: input
-    });
-    function getPending(i) {
-      var value = prefix[i];
-      if (value === placeholder || value === pending) return true;
-      if (!hasCourier(value)) return false;
-      var rest = wrap(value.courier.accept(input.splice(0, value.nestedRemain)));
-      if (hasCourier(rest)) nestedRemain += rest.courier.nestedRemain;
-      prefix[i] = rest;
-      return false;
-    }
   };
   function debug(nowrap) {
     var out = [];
@@ -102,15 +79,20 @@ module.exports = function createCourier(pending) {
   function wrap(courier) {
     if (!(courier instanceof Courier)) return courier;
     function result() {
+      if (this && this.courierCall) {
+        return this.courierCall(wrap, courier, slice.call(arguments));
+      }
       return wrap(courier.accept(slice.call(arguments)));
     }
     result.inspect = debug;
     result.courier = courier;
     return result;
   }
-  return function courier(fn) {
-    return wrap(new Courier(fn, {}));
-  };
+  function courier(fn) {
+    return wrap.call(this, new Courier(fn, {}));
+  }
+  courier.hasCourier = hasCourier;
+  return courier;
 };
 
 //@ sourceMappingURL=courier.map
