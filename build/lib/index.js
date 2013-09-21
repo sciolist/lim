@@ -3,19 +3,28 @@ var slice = Array.prototype.slice;
 var ac = require('./utils/courier')(_);
 module.exports = exports = _;
 var $ = _;
-function _(source) {
-    var obj = { __source: source };
-    obj.courierCall = function courierCall(wrap, courier, args) {
-        args.push(source);
-        var result = wrap(courier.accept(args));
-        if (ac.hasCourier(result))
-            throw new Error('insufficient arguments');
-        else if (isIterator(result))
-            return _(result);
-        return result;
+function _(source, pending) {
+    function chain() {
+        if (!pending)
+            throw new Error('no pending function!');
+        return pending.call(this, slice.call(arguments));
+    }
+    chain.source = source;
+    chain.courierCall = function courierCall(wrap, wip, args) {
+        return pending(args);
+        function pending(args) {
+            wip = wip.fill(args);
+            if (wip.remain <= 1) {
+                var result = wrap(wip.accept([source]));
+                if (isIterator(result))
+                    return _(result);
+                return result;
+            }
+            return _(source, pending);
+        }
     };
-    obj.__proto__ = _;
-    return obj;
+    chain.__proto__ = _;
+    return chain;
 }
 function isIterator(v) {
     return v.next instanceof Function;
