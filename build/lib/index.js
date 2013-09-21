@@ -1,1434 +1,313 @@
-var $__generatorWrap = function(generator) {
-  return $traceurRuntime.addIterator({
-    next: function(x) {
-      switch (generator.GState) {
-        case 1:
-          throw new Error('"next" on executing generator');
-        case 3:
-          throw new Error('"next" on closed generator');
-        case 0:
-          if (x !== undefined) {
-            throw new TypeError('Sent value to newborn generator');
-          }
-        case 2:
-          generator.GState = 1;
-          if (generator.moveNext(x, 0)) {
-            generator.GState = 2;
-            return {
-              value: generator.current,
-              done: false
-            };
-          }
-          generator.GState = 3;
-          return {
-            value: generator.yieldReturn,
-            done: true
-          };
-      }
-    },
-    'throw': function(x) {
-      switch (generator.GState) {
-        case 1:
-          throw new Error('"throw" on executing generator');
-        case 3:
-          throw new Error('"throw" on closed generator');
-        case 0:
-          generator.GState = 3;
-          throw x;
-        case 2:
-          generator.GState = 1;
-          if (generator.moveNext(x, 1)) {
-            generator.GState = 2;
-            return {
-              value: generator.current,
-              done: false
-            };
-          }
-          generator.GState = 3;
-          return {
-            value: generator.yieldReturn,
-            done: true
-          };
-      }
-    }
-  });
-};
 var hasOwnProperty = Object.hasOwnProperty;
 var slice = Array.prototype.slice;
 var ac = require('./utils/courier')(_);
 module.exports = exports = _;
 var $ = _;
 function _(source) {
-  var obj = {__source: source};
-  obj.courierCall = function courierCall(wrap, courier, args) {
-    args.push(source);
-    var result = wrap(courier.accept(args));
-    if (ac.hasCourier(result)) throw new Error('insufficient arguments'); else if (isIterator(result)) return _(result);
-    return result;
-  };
-  obj.__proto__ = _;
-  return obj;
+    var obj = { __source: source };
+    obj.courierCall = function courierCall(wrap, courier, args) {
+        args.push(source);
+        var result = wrap(courier.accept(args));
+        if (ac.hasCourier(result))
+            throw new Error('insufficient arguments');
+        else if (isIterator(result))
+            return _(result);
+        return result;
+    };
+    obj.__proto__ = _;
+    return obj;
 }
 function isIterator(v) {
-  return v.next instanceof Function;
+    return v.next instanceof Function;
 }
 function isIterable(v) {
-  return v.iterator instanceof Function || v.next instanceof Function || Array.isArray(v);
+    return v.iterator instanceof Function || v.next instanceof Function || Array.isArray(v);
 }
 _.autocurry = _.ac = ac;
-_.self = _.identity = (function(v) {
-  return v;
-});
-_.range = ac(function range(start, stop) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 14;
-  var $storedException;
-  var $finallyFallThrough;
-  var i;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 14:
-          if (start < stop) {
-            $state = 5;
-            break;
-          } else {
-            $state = 12;
-            break;
-          }
-        case 5:
-          i = start;
-          $state = 4;
-          break;
-        case 4:
-          if (i < stop) {
-            $state = 0;
-            break;
-          } else {
-            $state = 6;
-            break;
-          }
-        case 3:
-          ++i;
-          $state = 4;
-          break;
-        case 0:
-          this.current = i;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 12:
-          i = start - 1;
-          $state = 11;
-          break;
-        case 11:
-          if (i >= stop) {
-            $state = 7;
-            break;
-          } else {
-            $state = 6;
-            break;
-          }
-        case 10:
-          --i;
-          $state = 11;
-          break;
-        case 7:
-          this.current = i;
-          $state = 8;
-          return true;
-        case 8:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 10;
-          break;
-        case 6:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
-    }
-  };
-  return $__generatorWrap($G);
+_.self = _.identity = function (v) {
+    return v;
+};
+_.range = ac(function* range(start, stop) {
+    if (start < stop)
+        for (var i = start; i < stop; ++i)
+            yield i;
+    else
+        for (var i = start - 1; i >= stop; --i)
+            yield i;
 });
 _.exists = ac(function exists(source) {
-  for (var $__2 = $traceurRuntime.getIterator(source), $__3; !($__3 = $__2.next()).done;) {
-    var v = $__3.value;
-    return true;
-  }
-  return false;
+    for (var $es6$it2 = source.iterator(), $es6$its3 = $es6$it2.next(), v;!$es6$its3.done;$es6$its3 = $es6$it2.next()) {
+        v = $es6$its3.value;
+        return true;
+    }
+    return false;
 });
 _.collect = ac(function collect(source) {
-  return (function() {
-    var $__0 = 0, $__1 = [];
-    for (var $__3 = $traceurRuntime.getIterator(source), $__2; !($__2 = $__3.next()).done;) {
-      var v = $__2.value;
-      $__1[$__0++] = v;
+    var out = [];
+    for (var $es6$it5 = source.iterator(), $es6$its6 = $es6$it5.next(), v;!$es6$its6.done;$es6$its6 = $es6$it5.next()) {
+        v = $es6$its6.value;
+        out.push(v);
     }
-    return $__1;
-  }());
+    return out;
 });
-_.tap = ac(function tap(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 8;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 8:
-          $__2 = $traceurRuntime.getIterator(source);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__3 = $__2.next()).done) {
-            $state = 6;
-            break;
-          } else {
-            $state = 9;
-            break;
-          }
-        case 6:
-          v = $__3.value;
-          $state = 7;
-          break;
-        case 7:
-          fn(v);
-          $state = 5;
-          break;
-        case 5:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 9:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.tap = ac(function* tap(fn, source) {
+    for (var $es6$it8 = source.iterator(), $es6$its9 = $es6$it8.next(), v;!$es6$its9.done;$es6$its9 = $es6$it8.next()) {
+        v = $es6$its9.value;
+        fn(v);
+        yield v;
     }
-  };
-  return $__generatorWrap($G);
 });
 _.each = ac(function each(cb, source) {
-  for (var $__3 = $traceurRuntime.getIterator(source), $__2; !($__2 = $__3.next()).done;) {
-    var v = $__2.value;
-    cb(v);
-  }
+    for (var $es6$it11 = source.iterator(), $es6$its12 = $es6$it11.next(), v;!$es6$its12.done;$es6$its12 = $es6$it11.next()) {
+        v = $es6$its12.value;
+        cb(v);
+    }
 });
 _.head = ac(function head(source) {
-  for (var $__2 = $traceurRuntime.getIterator(source), $__3; !($__3 = $__2.next()).done;) {
-    var v = $__3.value;
-    return v;
-  }
-});
-_.iterate = ac(function iterate(source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 6;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 6:
-          $__3 = $traceurRuntime.getIterator(source);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__2 = $__3.next()).done) {
-            $state = 4;
-            break;
-          } else {
-            $state = 7;
-            break;
-          }
-        case 4:
-          v = $__2.value;
-          $state = 5;
-          break;
-        case 5:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 7:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+    for (var $es6$it14 = source.iterator(), $es6$its15 = $es6$it14.next(), v;!$es6$its15.done;$es6$its15 = $es6$it14.next()) {
+        v = $es6$its15.value;
+        return v;
     }
-  };
-  return $__generatorWrap($G);
 });
-_.map = ac(function map(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 6;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 6:
-          $__2 = $traceurRuntime.getIterator(source);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__3 = $__2.next()).done) {
-            $state = 4;
-            break;
-          } else {
-            $state = 7;
-            break;
-          }
-        case 4:
-          v = $__3.value;
-          $state = 5;
-          break;
-        case 5:
-          this.current = fn(v);
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 7:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.iterate = ac(function* iterate(source) {
+    for (var $es6$it17 = source.iterator(), $es6$its18 = $es6$it17.next(), v;!$es6$its18.done;$es6$its18 = $es6$it17.next()) {
+        v = $es6$its18.value;
+        yield v;
     }
-  };
-  return $__generatorWrap($G);
 });
-_.filter = ac(function filter(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 7;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 7:
-          $__3 = $traceurRuntime.getIterator(source);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__2 = $__3.next()).done) {
-            $state = 5;
-            break;
-          } else {
-            $state = 8;
-            break;
-          }
-        case 5:
-          v = $__2.value;
-          $state = 6;
-          break;
-        case 6:
-          if (fn(v)) {
-            $state = 0;
-            break;
-          } else {
-            $state = 3;
-            break;
-          }
-        case 0:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 8:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.map = ac(function* map(fn, source) {
+    for (var it = source.iterator(), next = it.next(); !next.done; next = it.next()) {
+        yield fn(next.value);
     }
-  };
-  return $__generatorWrap($G);
+    for (var $es6$it20 = source.iterator(), $es6$its21 = $es6$it20.next(), v;!$es6$its21.done;$es6$its21 = $es6$it20.next()) {
+        v = $es6$its21.value;
+        yield fn(v);
+    }
+});
+_.filter = ac(function* filter(fn, source) {
+    for (var $es6$it23 = source.iterator(), $es6$its24 = $es6$it23.next(), v;!$es6$its24.done;$es6$its24 = $es6$it23.next()) {
+        v = $es6$its24.value;
+        if (fn(v))
+            yield v;
+    }
 });
 _.setValues = ac(function setValues(source, item) {
-  for (var $__2 = $traceurRuntime.getIterator(source), $__3; !($__3 = $__2.next()).done;) {
-    var $__6 = $__3.value, k = $__6[0], v = $__6[1];
-    item[k] = v;
-  }
-  return item;
+    for (var $es6$it26 = source.iterator(), $es6$its27 = $es6$it26.next(), kv;!$es6$its27.done;$es6$its27 = $es6$it26.next()) {
+        kv = $es6$its27.value;
+        item[kv[0]] = kv[1];
+    }
+    return item;
 });
 _.reduce = ac(function reduce(seed, fn, source) {
-  for (var $__3 = $traceurRuntime.getIterator(source), $__2; !($__2 = $__3.next()).done;) {
-    var v = $__2.value;
-    {
-      seed = fn(seed, v);
+    for (var $es6$it29 = source.iterator(), $es6$its30 = $es6$it29.next(), v;!$es6$its30.done;$es6$its30 = $es6$it29.next()) {
+        v = $es6$its30.value;
+        seed = fn(seed, v);
     }
-  }
-  return seed;
+    return seed;
 });
-_.reverse = ac(function reverse(source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 5;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var arr;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 5:
-          arr = [];
-          $state = 6;
-          break;
-        case 6:
-          for ($__2 = $traceurRuntime.getIterator(source); !($__3 = $__2.next()).done;) {
-            v = $__3.value;
-            arr.push(v);
-          }
-          $state = 8;
-          break;
-        case 8:
-          if (arr.length) {
-            $state = 0;
-            break;
-          } else {
-            $state = 4;
-            break;
-          }
-        case 0:
-          this.current = arr.pop();
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 8;
-          break;
-        case 4:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.reverse = ac(function* reverse(source) {
+    var arr = [];
+    for (var $es6$it32 = source.iterator(), $es6$its33 = $es6$it32.next(), v;!$es6$its33.done;$es6$its33 = $es6$it32.next()) {
+        v = $es6$its33.value;
+        arr.push(v);
     }
-  };
-  return $__generatorWrap($G);
+    while (arr.length)
+        yield arr.pop();
 });
-_.slice = ac(function slice(start, length, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 14;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var end;
-  var i;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 14:
-          if (start < 0) {
-            source = _.toArray(source);
-            start = source.length + start;
-          }
-          $state = 15;
-          break;
-        case 15:
-          i = 0, end = length === - 1 ? Number.MAX_VALUE: start + length;
-          $state = 17;
-          break;
-        case 17:
-          $__3 = $traceurRuntime.getIterator(source);
-          $state = 9;
-          break;
-        case 9:
-          if (!($__2 = $__3.next()).done) {
-            $state = 10;
-            break;
-          } else {
-            $state = 13;
-            break;
-          }
-        case 10:
-          v = $__2.value;
-          $state = 11;
-          break;
-        case 11:
-          if (i >= start && i < end) {
-            $state = 0;
-            break;
-          } else {
-            $state = 3;
-            break;
-          }
-        case 0:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 3:
-          if (i >= end) {
-            $state = 13;
-            break;
-          } else {
-            $state = 6;
-            break;
-          }
-        case 6:
-          i += 1;
-          $state = 9;
-          break;
-        case 13:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.slice = ac(function* slice(start, length, source) {
+    if (start < 0) {
+        source = _.toArray(source);
+        start = source.length + start;
     }
-  };
-  return $__generatorWrap($G);
+    var i = 0, end = length === -1 ? Number.MAX_VALUE : start + length;
+    for (var $es6$it35 = source.iterator(), $es6$its36 = $es6$it35.next(), v;!$es6$its36.done;$es6$its36 = $es6$it35.next()) {
+        v = $es6$its36.value;
+        if (i >= start && i < end)
+            yield v;
+        if (i >= end)
+            break;
+        i += 1;
+    }
 });
-_.takeUntil = ac(function takeUntil(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 9;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var v;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 9:
-          $__2 = $traceurRuntime.getIterator(source);
-          $state = 5;
-          break;
-        case 5:
-          if (!($__3 = $__2.next()).done) {
-            $state = 7;
+_.takeUntil = ac(function* takeUntil(fn, source) {
+    for (var $es6$it38 = source.iterator(), $es6$its39 = $es6$it38.next(), v;!$es6$its39.done;$es6$its39 = $es6$it38.next()) {
+        v = $es6$its39.value;
+        yield v;
+        if (fn(v))
             break;
-          } else {
-            $state = 10;
-            break;
-          }
-        case 7:
-          v = $__3.value;
-          $state = 8;
-          break;
-        case 8:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 3:
-          if (fn(v)) {
-            $state = 10;
-            break;
-          } else {
-            $state = 5;
-            break;
-          }
-        case 10:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
     }
-  };
-  return $__generatorWrap($G);
 });
-_.takeUntilLast = ac(function takeUntil(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 19;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var $__4;
-  var $__5;
-  var arr;
-  var v;
-  var vv;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 19:
-          arr = [];
-          $state = 20;
-          break;
-        case 20:
-          $__4 = $traceurRuntime.getIterator(source);
-          $state = 14;
-          break;
-        case 14:
-          if (!($__5 = $__4.next()).done) {
-            $state = 15;
-            break;
-          } else {
-            $state = 18;
-            break;
-          }
-        case 15:
-          v = $__5.value;
-          $state = 16;
-          break;
-        case 16:
-          arr.push(v);
-          $state = 9;
-          break;
-        case 9:
-          if (!fn(v)) {
-            $state = 14;
-            break;
-          } else {
-            $state = 11;
-            break;
-          }
-        case 11:
-          $__3 = $traceurRuntime.getIterator(arr);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__2 = $__3.next()).done) {
-            $state = 4;
-            break;
-          } else {
-            $state = 7;
-            break;
-          }
-        case 4:
-          vv = $__2.value;
-          $state = 5;
-          break;
-        case 5:
-          this.current = vv;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 7:
-          arr.length = 0;
-          $state = 14;
-          break;
-        case 18:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
+_.takeUntilLast = ac(function* takeUntilLast(fn, source) {
+    var arr = [];
+    for (var $es6$it41 = source.iterator(), $es6$its42 = $es6$it41.next(), v;!$es6$its42.done;$es6$its42 = $es6$it41.next()) {
+        v = $es6$its42.value;
+        arr.push(v);
+        if (!fn(v))
+            continue;
+        for (var $es6$it44 = arr.iterator(), $es6$its45 = $es6$it44.next(), vv;!$es6$its45.done;$es6$its45 = $es6$it44.next()) {
+            vv = $es6$its45.value;
+            yield vv;
         }
-      }
+        arr.length = 0;
     }
-  };
-  return $__generatorWrap($G);
 });
-_.flatten = ac(function flatten(source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 15;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var $__4;
-  var $__5;
-  var v;
-  var vv;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 15:
-          $__2 = $traceurRuntime.getIterator(source);
-          $state = 3;
-          break;
-        case 3:
-          if (!($__3 = $__2.next()).done) {
-            $state = 13;
-            break;
-          } else {
-            $state = 16;
-            break;
-          }
-        case 13:
-          v = $__3.value;
-          $state = 14;
-          break;
-        case 14:
-          if (!isIterable(v)) {
-            $state = 0;
-            break;
-          } else {
-            $state = 10;
-            break;
-          }
-        case 0:
-          this.current = v;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 10:
-          $__5 = $traceurRuntime.getIterator(v);
-          $state = 7;
-          break;
-        case 7:
-          if (!($__4 = $__5.next()).done) {
-            $state = 8;
-            break;
-          } else {
-            $state = 3;
-            break;
-          }
-        case 8:
-          vv = $__4.value;
-          $state = 9;
-          break;
-        case 9:
-          this.current = vv;
-          $state = 5;
-          return true;
-        case 5:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 7;
-          break;
-        case 16:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.flatten = ac(function* flatten(source) {
+    for (var $es6$it47 = source.iterator(), $es6$its48 = $es6$it47.next(), v;!$es6$its48.done;$es6$its48 = $es6$it47.next()) {
+        v = $es6$its48.value;
+        if (!isIterable(v))
+            yield v;
+        else
+            for (var $es6$it50 = v.iterator(), $es6$its51 = $es6$it50.next(), vv;!$es6$its51.done;$es6$its51 = $es6$it50.next()) {
+                vv = $es6$its51.value;
+                yield vv;
+            }
     }
-  };
-  return $__generatorWrap($G);
 });
 _.comparer = ac(function comparer(fn) {
-  return function comparison(item1, item2) {
-    var value1 = fn(item1), value2 = fn(item2);
-    return value1 == value2 ? 0: (value1 < value2 ? - 1: 1);
-  };
+    return function comparison(item1, item2) {
+        var value1 = fn(item1), value2 = fn(item2);
+        return value1 == value2 ? 0 : value1 < value2 ? -1 : 1;
+    };
 });
-_.sort = ac(function sort(cmp, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 12;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var $__6;
-  var $__7;
-  var arr;
-  var i;
-  var item;
-  var j;
-  var left;
-  var lower;
-  var right;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 12:
-          ;
-          $state = 13;
-          break;
-        case 13:
-          arr = [];
-          $state = 15;
-          break;
-        case 15:
-          for ($__3 = $traceurRuntime.getIterator(source); !($__2 = $__3.next()).done;) {
-            item = $__2.value;
-            {
-              arr.push(item);
-              j = arr.length - 1;
-              for (i = arr.length - 1;; i = j) {
-                j = Math.ceil(i / 2) - 1;
-                if (j < 0 || cmp(arr[j], arr[i]) <= 0) break;
-                {
-                  ($__6 = [arr[i], arr[j]], arr[j] = $__6[0], arr[i] = $__6[1], $__6);
-                  if ($yieldAction == 1) {
-                    $yieldAction = 0;
-                    throw $yieldSent;
-                  }
-                }
-              }
-            }
-          }
-          $state = 17;
-          break;
-        case 17:
-          if (arr.length) {
-            $state = 0;
-            break;
-          } else {
-            $state = 11;
-            break;
-          }
-        case 0:
-          this.current = arr[0];
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 3:
-          if (arr.length === 1) {
-            $state = 11;
-            break;
-          } else {
-            $state = 5;
-            break;
-          }
-        case 5:
-          arr[0] = arr.pop();
-          $state = 8;
-          break;
-        case 8:
-          for (i = 0, lower = 0;; i = lower) {
-            left = 2 * i + 1, right = left + 1;
-            if (left < arr.length && cmp(arr[left], arr[i]) < 0) lower = left;
-            if (right < arr.length && cmp(arr[right], arr[lower]) < 0) lower = right;
-            if (i === lower) break;
-            {
-              ($__7 = [arr[i], arr[lower]], arr[lower] = $__7[0], arr[i] = $__7[1], $__7);
-              if ($yieldAction == 1) {
-                $yieldAction = 0;
-                throw $yieldSent;
-              }
-            }
-          }
-          $state = 17;
-          break;
-        case 11:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
+_.sort = ac(function* sort(cmp, source) {
+    var arr = [];
+    for (var $es6$it53 = source.iterator(), $es6$its54 = $es6$it53.next(), item;!$es6$its54.done;$es6$its54 = $es6$it53.next()) {
+        item = $es6$its54.value;
+        arr.push(item);
+        var i, j = arr.length - 1;
+        for (var i = arr.length - 1, j;; i = j) {
+            j = Math.ceil(i / 2) - 1;
+            if (j < 0 || cmp(arr[j], arr[i]) <= 0)
+                break;
+            [
+                arr[j],
+                arr[i]
+            ] = [
+                arr[i],
+                arr[j]
+            ];
         }
-      }
     }
-  };
-  return $__generatorWrap($G);
+    while (arr.length) {
+        yield arr[0];
+        if (arr.length === 1)
+            break;
+        arr[0] = arr.pop();
+        for (var i = 0, lower = 0;; i = lower) {
+            var left = 2 * i + 1, right = left + 1;
+            if (left < arr.length && cmp(arr[left], arr[i]) < 0)
+                lower = left;
+            if (right < arr.length && cmp(arr[right], arr[lower]) < 0)
+                lower = right;
+            if (i === lower)
+                break;
+            [
+                arr[lower],
+                arr[i]
+            ] = [
+                arr[i],
+                arr[lower]
+            ];
+        }
+    }
 });
-_.wrap = ac((function(wrapper, fn) {
-  return (function() {
-    return wrapper.apply(this, [fn, arguments]);
-  }).bind(this);
-}).bind(this));
-_.withObject = _.reduce($, _.wrap((function(fn, $__7) {
-  var x = $__7[0], v = $__7[1];
-  return (fn(x, v), x);
-}), $));
+_.wrap = ac(function (wrapper, fn) {
+    return function () {
+        return wrapper.apply(this, [
+            fn,
+            arguments
+        ]);
+    };
+});
+_.withObject = _.reduce($, _.wrap(function (fn, kv) {
+    return fn(kv[0], kv[1]), kv[0];
+}, $));
 _.groupBy = ac(function groupBy(fn, source) {
-  return _.withObject({}, (function(d, $__6) {
-    var k = $__6[0], v = $__6[1];
-    return (d[k] || (d[k] = [])).push(v);
-  }), _.map((function(k) {
-    return [fn(k), k];
-  }), source));
+    return _.withObject({}, function (d, kv) {
+        (d[kv[0]] || (d[kv[0]] = [])).push(v);
+    }, _.map(function (k) {
+        return [
+            fn(kv[0]),
+            kv[0]
+        ];
+    }, source));
 });
-_.zip = ac(function zip(source1, source2) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 10;
-  var $storedException;
-  var $finallyFallThrough;
-  var a;
-  var av;
-  var b;
-  var bv;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 10:
-          a = _.iterate(source1), b = _.iterate(source2);
-          $state = 11;
-          break;
-        case 11:
-          if (true) {
-            $state = 4;
+_.zip = ac(function* zip(source1, source2) {
+    var a = _.iterate(source1), b = _.iterate(source2);
+    while (true) {
+        var av = a.next(), bv = b.next();
+        if (av.done || bv.done)
             break;
-          } else {
-            $state = 9;
-            break;
-          }
-        case 4:
-          av = a.next(), bv = b.next();
-          $state = 5;
-          break;
-        case 5:
-          if (av.done || bv.done) {
-            $state = 9;
-            break;
-          } else {
-            $state = 7;
-            break;
-          }
-        case 7:
-          this.current = [av.value, bv.value];
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 11;
-          break;
-        case 9:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+        yield [
+            av.value,
+            bv.value
+        ];
     }
-  };
-  return $__generatorWrap($G);
 });
-_.indexes = ac(function indexes(fn, source) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 11;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__2;
-  var $__3;
-  var i;
-  var k;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 11:
-          i = 0;
-          $state = 12;
-          break;
-        case 12:
-          $__2 = $traceurRuntime.getIterator(source);
-          $state = 6;
-          break;
-        case 6:
-          if (!($__3 = $__2.next()).done) {
-            $state = 7;
-            break;
-          } else {
-            $state = 10;
-            break;
-          }
-        case 7:
-          k = $__3.value;
-          $state = 8;
-          break;
-        case 8:
-          if (fn(k)) {
-            $state = 0;
-            break;
-          } else {
-            $state = 3;
-            break;
-          }
-        case 0:
-          this.current = i;
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 3:
-          ++i;
-          $state = 6;
-          break;
-        case 10:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.indexes = ac(function* indexes(fn, source) {
+    var i = 0;
+    for (var $es6$it56 = source.iterator(), $es6$its57 = $es6$it56.next(), k;!$es6$its57.done;$es6$its57 = $es6$it56.next()) {
+        k = $es6$its57.value;
+        if (fn(k))
+            yield i;
+        ++i;
     }
-  };
-  return $__generatorWrap($G);
 });
-_.pairs = ac(function pairs(item) {
-  var $that = this;
-  var $arguments = arguments;
-  var $state = 15;
-  var $storedException;
-  var $finallyFallThrough;
-  var $__10;
-  var $__11;
-  var $__8;
-  var $__9;
-  var key;
-  var $G = {
-    GState: 0,
-    current: undefined,
-    yieldReturn: undefined,
-    innerFunction: function($yieldSent, $yieldAction) {
-      while (true) switch ($state) {
-        case 15:
-          $__8 = [];
-          $state = 16;
-          break;
-        case 16:
-          $__9 = item;
-          $state = 18;
-          break;
-        case 18:
-          for (var $__10 in $__9) $__8.push($__10);
-          $state = 20;
-          break;
-        case 20:
-          $__11 = 0;
-          $state = 12;
-          break;
-        case 12:
-          if ($__11 < $__8.length) {
-            $state = 4;
-            break;
-          } else {
-            $state = 14;
-            break;
-          }
-        case 3:
-          $__11++;
-          $state = 12;
-          break;
-        case 4:
-          key = $__8[$__11];
-          $state = 5;
-          break;
-        case 5:
-          if (!(key in $__9)) {
-            $state = 3;
-            break;
-          } else {
-            $state = 7;
-            break;
-          }
-        case 7:
-          if (!hasOwnProperty.call(item, key)) {
-            $state = 3;
-            break;
-          } else {
-            $state = 10;
-            break;
-          }
-        case 10:
-          this.current = [key, item[key]];
-          $state = 1;
-          return true;
-        case 1:
-          if ($yieldAction == 1) {
-            $yieldAction = 0;
-            throw $yieldSent;
-          }
-          $state = 3;
-          break;
-        case 14:
-          $state = -2;
-        case -2:
-          return false;
-        case -3:
-          throw $storedException;
-        default:
-          throw "traceur compiler bug: invalid state in state machine" + $state;
-      }
-    },
-    moveNext: function($yieldSent, $yieldAction) {
-      while (true) try {
-        return this.innerFunction($yieldSent, $yieldAction);
-      } catch ($caughtException) {
-        $storedException = $caughtException;
-        switch ($state) {
-          default:
-            this.GState = 3;
-            $state = -2;
-            throw $storedException;
-        }
-      }
+_.pairs = ac(function* pairs(item) {
+    for (var key in item) {
+        if (!hasOwnProperty.call(item, key))
+            continue;
+        yield [
+            key,
+            item[key]
+        ];
     }
-  };
-  return $__generatorWrap($G);
 });
 _.or = ac(function or(fn1, fn2, value) {
-  return fn1(value) || fn2(value);
+    return fn1(value) || fn2(value);
 });
 _.and = ac(function and(fn1, fn2, value) {
-  return fn1(value) && fn2(value);
+    return fn1(value) && fn2(value);
 });
 _.not = ac(function not(v) {
-  return !v;
+    return !v;
 });
 _.yes = _.true = ac(function yes() {
-  return true;
+    return true;
 });
 _.no = _.false = ac(function no() {
-  return true;
+    return true;
 });
 _.invert = ac(function invert(fn) {
-  return (function() {
-    return !fn.apply(this, arguments);
-  }).bind(this);
+    return function () {
+        return !fn.apply(this, arguments);
+    };
 });
-_.equal = ac((function(expected, value) {
-  return value === expected;
-}));
-_.gt = ac((function(y, x) {
-  return x > y;
-}));
+_.equal = ac(function (expected, value) {
+    return value === expected;
+});
+_.gt = ac(function (y, x) {
+    return x > y;
+});
 _.reject = _.filter(_.invert($), $);
 _.reduceRight = _.reduce($, $, _.reverse($));
-_.object = ac((function(v) {
-  return _.setValues(v, {});
-}));
-_.count = _.reduce(0, (function(sum, i) {
-  return sum + 1;
-}));
-_.sum = _.reduce(0, (function(sum, i) {
-  return sum + i;
-}));
+_.object = ac(function (v) {
+    return _.setValues(v, {});
+});
+_.count = _.reduce(0, function (sum, i) {
+    return sum + 1;
+});
+_.sum = _.reduce(0, function (sum, i) {
+    return sum + i;
+});
 _.max = _.reduce(0, Math.max);
 _.min = _.reduce(0, Math.min);
-_.compact = _.filter((function(v) {
-  return !!v;
-}));
-_.tail = _.slice(1, - 1);
+_.compact = _.filter(function (v) {
+    return !!v;
+});
+_.tail = _.slice(1, -1);
 _.take = _.slice(0);
-_.skip = _.slice($, - 1, $);
+_.skip = _.slice($, -1, $);
 _.sortBy = _.sort(_.comparer($));
 _.debug = _.tap;
 _.first = _.head;
@@ -1436,7 +315,7 @@ _.toArray = _.collect;
 _.flatmap = _.flatten(_.map($, $));
 _.indexBy = _.object(_.groupBy($));
 _.shuffle = _.sortBy(Math.random);
-_.last = _.head(_.slice(- 1, 1, $));
+_.last = _.head(_.slice(-1, 1, $));
 _.find = _.head(_.filter($, $));
 _.findLast = _.tail(_.filter($, $));
 _.any = _.exists(_.filter($, $));
@@ -1445,48 +324,56 @@ _.find = _.head(_.filter($, $));
 _.findLast = _.tail(_.filter($, $));
 _.findIndex = _.head(_.indexes($, $));
 _.indexOf = _.findIndex(_.equal($), $);
-_.contains = _.gt(- 1, _.indexOf($, $));
+_.contains = _.gt(-1, _.indexOf($, $));
 _.findLastIndex = _.tail(_.indexes($, $));
 _.lastIndexOf = _.findLastIndex(_.equal($), $);
 _.keys = _.map(_.head(_.pairs($)));
 _.values = _.map(_.tail(_.pairs($)));
-_.isObject = ac((function(v) {
-  return v === Object(v);
-}));
+_.isObject = ac(function (v) {
+    return v === Object(v);
+});
 _.isEmpty = _.not(_.exists(_.pairs($)));
 _.isBoolean = _.or(_.equal(true), _.equal(false));
-_.has = ac((function(item, key) {
-  return hasOwnProperty.call(item, key);
-}));
+_.has = ac(function (item, key) {
+    return hasOwnProperty.call(item, key);
+});
 _.isFinite = ac(isFinite);
 _.isNaN = ac(isNaN);
 _.isNull = _.equal(null);
 _.isUndefined = _.equal(undefined);
-[Array, Function, String, Number, Date, RegExp].forEach(function(constructor) {
-  _['is' + constructor.name] = ac((function(obj) {
-    return obj && obj.constructor === constructor;
-  }));
+[
+    Array,
+    Function,
+    String,
+    Number,
+    Date,
+    RegExp
+].forEach(function (constructor) {
+    _['is' + constructor.name] = ac(function (obj) {
+        return obj && obj.constructor === constructor;
+    });
 });
-_.pick = ac((function(names, item) {
-  return _.object(_.map((function(n) {
-    return [n, item[n]];
-  }), names));
-}));
-_.pluck = ac((function(propertyName, source) {
-  return source[propertyName];
-}));
+_.pick = ac(function (names, item) {
+    return _.object(_.map(function (n) {
+        return [
+            n,
+            item[n]
+        ];
+    }, names));
+});
+_.pluck = ac(function (propertyName, source) {
+    return source[propertyName];
+});
 _.clone = ac(function clone(item) {
-  if (!_.isObject(item)) return item;
-  return _.isArray(item) ? item.slice(): _.extend({}, item);
+    if (!_.isObject(item))
+        return item;
+    return _.isArray(item) ? item.slice() : _.extend({}, item);
 });
 _.defaults = ac(function defaults(dest, item) {
-  return _.setValues(_.filter((function($__6) {
-    var k = $__6[0], v = $__6[1];
-    return undefined === dest[k];
-  }), _.pairs(item)), dest);
+    return _.setValues(_.filter(function () {
+        return undefined === dest[k];
+    }, _.pairs(item)), dest);
 });
-_.extend = ac((function(dest, item) {
-  return _.setValues(_.pairs(item), dest);
-}));
-
-//@ sourceMappingURL=index.map
+_.extend = ac(function (dest, item) {
+    return _.setValues(_.pairs(item), dest);
+});
