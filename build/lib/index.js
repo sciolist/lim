@@ -76,9 +76,6 @@ _.iterate = ac(function* iterate(source) {
     }
 });
 _.map = ac(function* map(fn, source) {
-    for (var it = source.iterator(), next = it.next(); !next.done; next = it.next()) {
-        yield fn(next.value);
-    }
     for (var $es6$it20 = source.iterator(), $es6$its21 = $es6$it20.next(), v;!$es6$its21.done;$es6$its21 = $es6$it20.next()) {
         v = $es6$its21.value;
         yield fn(v);
