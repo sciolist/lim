@@ -4,6 +4,6 @@ FILES=$(find lib -name "*.js")
 for F in $FILES
 do
   mkdir -p "build/${F%/*}"
-  node utils/build-file.js < "$F" > "build/$F"
+  traceur --sourcemap --out "build/$F" "$F"
 done
 

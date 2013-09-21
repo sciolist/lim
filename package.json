@@ -15,10 +15,8 @@
   "bugs": {
     "url": "https://github.com/sciolist/lim/issues"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "esprima": "git://github.com/ariya/esprima#6c8079ab261757590c40d3c82e9f775bb9935615",
-    "escodegen": "git://github.com/sciolist/lim.escodegen#ee86ba2"
+    "traceur": "0.0.4"
   }
 }
