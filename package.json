@@ -1,6 +1,6 @@
 {
   "name": "lim",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "lazy iterator manipulation",
   "main": "index.js",
   "scripts": {
