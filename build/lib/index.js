@@ -86,6 +86,7 @@ function isIterable(v) {
   return v.iterator instanceof Function || v.next instanceof Function || Array.isArray(v);
 }
 _.autocurry = _.ac = ac;
+return;
 _.self = _.identity = (function(v) {
   return v;
 });
